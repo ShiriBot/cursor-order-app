@@ -1,6 +1,6 @@
 import './OrderManagement.css';
 
-function OrderManagement({ orders, onUpdateOrderStatus }) {
+function OrderManagement({ orders, onUpdateOrderStatus, onDeleteOrder }) {
   const getStatusButton = (order) => {
     switch (order.status) {
       case 'pending':
@@ -22,7 +22,20 @@ function OrderManagement({ orders, onUpdateOrderStatus }) {
           </button>
         );
       case 'completed':
-        return <span className="order-status-badge completed">완료</span>;
+        return (
+          <div className="completed-actions">
+            <span className="order-status-badge completed">완료</span>
+            {onDeleteOrder && (
+              <button
+                className="delete-btn"
+                onClick={() => onDeleteOrder(order.id)}
+                title="삭제"
+              >
+                🗑️ 삭제
+              </button>
+            )}
+          </div>
+        );
       default:
         return null;
     }

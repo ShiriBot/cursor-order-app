@@ -111,11 +111,25 @@ function App() {
         return newItems.filter((_, i) => i !== index);
       }
       
+      // 재고 확인 (증가할 때만)
+      if (change > 0) {
+        const stock = inventory.find(item => item.id === currentItem.id)?.stock || 0;
+        if (newQuantity > stock) {
+          alert(`재고가 부족합니다. (현재 재고: ${stock}개)`);
+          return prevItems;
+        }
+      }
+      
       // 새로운 배열 생성하여 반환
       return newItems.map((item, i) => 
         i === index ? { ...item, quantity: newQuantity } : item
       );
     });
+  };
+
+  // 장바구니 항목 삭제
+  const handleRemoveFromCart = (index) => {
+    setCartItems((prevItems) => prevItems.filter((_, i) => i !== index));
   };
 
   // 재고 확인 함수
@@ -158,9 +172,9 @@ function App() {
       })
     );
 
-    // 새 주문 생성
+    // 새 주문 생성 (고유 ID 생성)
     const newOrder = {
-      id: orders.length + 1,
+      id: Date.now(),
       date: new Date().toISOString(),
       items: cartItems.map(item => ({
         name: item.name,
@@ -172,10 +186,12 @@ function App() {
     };
 
     setOrders([newOrder, ...orders]);
+    setCartItems([]); // 장바구니 초기화
     
     // 주문 처리
-    alert('주문이 완료되었습니다!');
-    setCartItems([]); // 장바구니 초기화
+    setTimeout(() => {
+      alert('✅ 주문이 완료되었습니다!\n주문 상태는 화면 우측 상단에서 확인할 수 있습니다.');
+    }, 100);
   };
 
   // 재고 업데이트
@@ -196,6 +212,16 @@ function App() {
         order.id === orderId ? { ...order, status: newStatus } : order
       )
     );
+  };
+
+  // 주문 삭제 (완료된 주문만)
+  const handleDeleteOrder = (orderId) => {
+    const order = orders.find(o => o.id === orderId);
+    if (order && order.status === 'completed') {
+      if (window.confirm('이 주문을 삭제하시겠습니까?')) {
+        setOrders((prevOrders) => prevOrders.filter(o => o.id !== orderId));
+      }
+    }
   };
 
   // 대시보드 통계 계산
@@ -231,7 +257,13 @@ function App() {
             </div>
           </div>
 
-          <Cart items={cartItems} onOrder={handleOrder} onUpdateQuantity={handleUpdateQuantity} />
+          <Cart 
+            items={cartItems} 
+            inventory={inventory}
+            onOrder={handleOrder} 
+            onUpdateQuantity={handleUpdateQuantity}
+            onRemoveItem={handleRemoveFromCart}
+          />
         </div>
       ) : (
         <div className="admin-page">
@@ -243,6 +275,7 @@ function App() {
           <OrderManagement 
             orders={orders}
             onUpdateOrderStatus={handleUpdateOrderStatus}
+            onDeleteOrder={handleDeleteOrder}
           />
         </div>
       )}

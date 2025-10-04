@@ -126,6 +126,29 @@
   color: #155724;
 }
 
+.completed-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.delete-btn {
+  padding: 0.5rem 1rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+  transform: translateY(-1px);
+}
+
 /* 반응형 */
 @media (max-width: 768px) {
   .order-management {

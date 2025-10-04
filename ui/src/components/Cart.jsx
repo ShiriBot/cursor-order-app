@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import './Cart.css';
 
-function Cart({ items, onOrder, onUpdateQuantity }) {
+function Cart({ items, inventory, onOrder, onUpdateQuantity, onRemoveItem }) {
   const [updatingIndex, setUpdatingIndex] = useState(null);
   const updateTimeoutRef = useRef(null);
   // 총 금액 계산
@@ -49,13 +49,24 @@ function Cart({ items, onOrder, onUpdateQuantity }) {
                 let itemPrice = item.price;
                 if (item.options.extraShot) itemPrice += 500;
                 const totalItemPrice = itemPrice * item.quantity;
+                const stock = inventory?.find(inv => inv.id === item.id)?.stock || 0;
+                const canIncrease = item.quantity < stock;
 
                 return (
                   <div key={index} className="cart-item">
                     <div className="cart-item-info">
-                      <span className="cart-item-name">
-                        {item.name}{getOptionsText(item.options)}
-                      </span>
+                      <div className="cart-item-header">
+                        <span className="cart-item-name">
+                          {item.name}{getOptionsText(item.options)}
+                        </span>
+                        <button 
+                          className="remove-btn"
+                          onClick={() => onRemoveItem(index)}
+                          title="삭제"
+                        >
+                          ✕
+                        </button>
+                      </div>
                       <div className="cart-item-controls">
                         <button 
                           className="quantity-btn"
@@ -76,10 +87,14 @@ function Cart({ items, onOrder, onUpdateQuantity }) {
                             e.stopPropagation();
                             handleQuantityChange(index, 1);
                           }}
-                          disabled={updatingIndex === index}
+                          disabled={updatingIndex === index || !canIncrease}
+                          title={!canIncrease ? `재고: ${stock}개` : ''}
                         >
                           +
                         </button>
+                        {!canIncrease && stock > 0 && (
+                          <span className="stock-warning-text">재고: {stock}</span>
+                        )}
                       </div>
                     </div>
                     <span className="cart-item-price">
