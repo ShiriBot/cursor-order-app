@@ -1,0 +1,72 @@
+import './OrderManagement.css';
+
+function OrderManagement({ orders, onUpdateOrderStatus }) {
+  const getStatusButton = (order) => {
+    switch (order.status) {
+      case 'pending':
+        return (
+          <button
+            className="order-btn pending"
+            onClick={() => onUpdateOrderStatus(order.id, 'preparing')}
+          >
+            제조 시작
+          </button>
+        );
+      case 'preparing':
+        return (
+          <button
+            className="order-btn preparing"
+            onClick={() => onUpdateOrderStatus(order.id, 'completed')}
+          >
+            제조 완료
+          </button>
+        );
+      case 'completed':
+        return <span className="order-status-badge completed">완료</span>;
+      default:
+        return null;
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${month}월 ${day}일 ${hours}:${minutes}`;
+  };
+
+  return (
+    <div className="order-management">
+      <h2 className="order-title">주문 현황</h2>
+      {orders.length === 0 ? (
+        <div className="order-empty">주문이 없습니다</div>
+      ) : (
+        <div className="order-list">
+          {orders.map((order) => (
+            <div key={order.id} className="order-card">
+              <div className="order-info">
+                <div className="order-date">{formatDate(order.date)}</div>
+                <div className="order-items">
+                  {order.items.map((item, index) => (
+                    <span key={index}>
+                      {item.name}
+                      {item.options.extraShot && ' (샷 추가)'}
+                      {item.options.extraSyrup && ' (시럽 추가)'} x {item.quantity}
+                    </span>
+                  ))}
+                </div>
+                <div className="order-price">{order.total.toLocaleString()}원</div>
+              </div>
+              <div className="order-action">{getStatusButton(order)}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default OrderManagement;
+

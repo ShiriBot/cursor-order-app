@@ -1,0 +1,165 @@
+.order-management {
+  background-color: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.order-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+  color: #212529;
+}
+
+.order-empty {
+  text-align: center;
+  padding: 3rem;
+  color: #adb5bd;
+  font-size: 1rem;
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.order-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  transition: all 0.2s;
+}
+
+.order-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.order-info {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
+}
+
+.order-date {
+  font-size: 0.95rem;
+  color: #495057;
+  font-weight: 600;
+  min-width: 120px;
+}
+
+.order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+}
+
+.order-items span {
+  font-size: 0.95rem;
+  color: #212529;
+  font-weight: 500;
+}
+
+.order-price {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #667eea;
+  min-width: 100px;
+  text-align: right;
+}
+
+.order-action {
+  margin-left: 2rem;
+}
+
+.order-btn {
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.order-btn.pending {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.order-btn.pending:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.order-btn.preparing {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+}
+
+.order-btn.preparing:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(245, 87, 108, 0.4);
+}
+
+.order-status-badge {
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.order-status-badge.completed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .order-management {
+    padding: 1rem 1.5rem;
+  }
+
+  .order-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .order-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+    width: 100%;
+  }
+
+  .order-date,
+  .order-price {
+    min-width: auto;
+  }
+
+  .order-action {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .order-btn,
+  .order-status-badge {
+    width: 100%;
+    text-align: center;
+  }
+}
+

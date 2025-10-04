@@ -21,9 +21,9 @@
 }
 
 .admin-page {
-  padding: 4rem 2rem;
-  text-align: center;
-  color: #6c757d;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-bottom: 2rem;
 }
 
 /* 반응형 디자인 */

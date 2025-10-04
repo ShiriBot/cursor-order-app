@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import './MenuCard.css';
 
-function MenuCard({ menu, onAddToCart }) {
+function MenuCard({ menu, stock, onAddToCart }) {
   const [extraShot, setExtraShot] = useState(false);
   const [extraSyrup, setExtraSyrup] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const addTimeoutRef = useRef(null);
+  
+  const isOutOfStock = stock === 0;
 
   // cleanup 함수
   useEffect(() => {
@@ -21,12 +23,8 @@ function MenuCard({ menu, onAddToCart }) {
     e.stopPropagation();
     
     // 이미 처리 중이면 무시
-    if (isAdding) {
-      console.log('⚠️ 이미 처리 중입니다. 무시됨');
-      return;
-    }
+    if (isAdding) return;
     
-    console.log('🔵 MenuCard: handleAddToCart 호출됨');
     setIsAdding(true);
     
     onAddToCart({
@@ -47,7 +45,6 @@ function MenuCard({ menu, onAddToCart }) {
     }
     addTimeoutRef.current = setTimeout(() => {
       setIsAdding(false);
-      console.log('🟢 MenuCard: 버튼 다시 활성화');
     }, 500);
   };
 
@@ -60,7 +57,11 @@ function MenuCard({ menu, onAddToCart }) {
           <div className="image-cross">✕</div>
         )}
       </div>
-      <h3 className="menu-name">{menu.name}</h3>
+      <div className="menu-header">
+        <h3 className="menu-name">{menu.name}</h3>
+        {isOutOfStock && <span className="stock-badge out">품절</span>}
+        {!isOutOfStock && stock < 5 && <span className="stock-badge low">재고 {stock}개</span>}
+      </div>
       <p className="menu-price">{menu.price.toLocaleString()}원</p>
       <p className="menu-description">{menu.description || '간단한 설명...'}</p>
       
@@ -86,9 +87,9 @@ function MenuCard({ menu, onAddToCart }) {
       <button 
         className="add-button" 
         onClick={handleAddToCart}
-        disabled={isAdding}
+        disabled={isAdding || isOutOfStock}
       >
-        {isAdding ? '담는 중...' : '담기'}
+        {isOutOfStock ? '품절' : isAdding ? '담는 중...' : '담기'}
       </button>
     </div>
   );

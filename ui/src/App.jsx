@@ -2,6 +2,10 @@ import { useState } from 'react';
 import Header from './components/Header';
 import MenuCard from './components/MenuCard';
 import Cart from './components/Cart';
+import OrderStatus from './components/OrderStatus';
+import AdminDashboard from './components/AdminDashboard';
+import InventoryManagement from './components/InventoryManagement';
+import OrderManagement from './components/OrderManagement';
 import './App.css';
 
 // 임시 메뉴 데이터
@@ -53,14 +57,22 @@ const MENU_DATA = [
 function App() {
   const [activeTab, setActiveTab] = useState('order');
   const [cartItems, setCartItems] = useState([]);
+  
+  // 관리자 페이지 상태
+  const [inventory, setInventory] = useState([
+    { id: 1, name: '아메리카노(ICE)', stock: 10 },
+    { id: 2, name: '아메리카노(HOT)', stock: 8 },
+    { id: 3, name: '카페라떼', stock: 5 },
+    { id: 4, name: '카푸치노', stock: 3 },
+    { id: 5, name: '바닐라라떼', stock: 7 },
+    { id: 6, name: '카라멜마끼아또', stock: 0 },
+  ]);
+  
+  const [orders, setOrders] = useState([]);
 
   // 장바구니에 추가
   const handleAddToCart = (menuItem) => {
-    console.log('🛒 담기 버튼 클릭:', menuItem.name);
-    
     setCartItems((prevItems) => {
-      console.log('📦 현재 장바구니:', prevItems.length, '개 항목');
-      
       // 동일한 메뉴와 옵션 조합이 있는지 확인
       const existingItemIndex = prevItems.findIndex(
         (item) =>
@@ -71,7 +83,6 @@ function App() {
 
       if (existingItemIndex !== -1) {
         // 이미 존재하면 수량 증가
-        console.log('✅ 기존 항목 수량 증가:', prevItems[existingItemIndex].quantity, '→', prevItems[existingItemIndex].quantity + 1);
         const newItems = [...prevItems];
         newItems[existingItemIndex] = {
           ...newItems[existingItemIndex],
@@ -80,7 +91,6 @@ function App() {
         return newItems;
       } else {
         // 새로운 항목 추가
-        console.log('🆕 새 항목 추가');
         return [...prevItems, { ...menuItem, quantity: 1 }];
       }
     });
@@ -108,6 +118,12 @@ function App() {
     });
   };
 
+  // 재고 확인 함수
+  const checkStock = (menuId, quantity) => {
+    const inventoryItem = inventory.find(item => item.id === menuId);
+    return inventoryItem && inventoryItem.stock >= quantity;
+  };
+
   // 주문하기
   const handleOrder = () => {
     if (cartItems.length === 0) {
@@ -115,9 +131,81 @@ function App() {
       return;
     }
 
-    // 주문 처리 (추후 백엔드 연동)
+    // 재고 확인
+    for (const item of cartItems) {
+      if (!checkStock(item.id, item.quantity)) {
+        const inventoryItem = inventory.find(inv => inv.id === item.id);
+        alert(`${item.name}의 재고가 부족합니다. (현재 재고: ${inventoryItem?.stock || 0}개)`);
+        return;
+      }
+    }
+
+    // 총 금액 계산
+    const total = cartItems.reduce((sum, item) => {
+      let itemPrice = item.price;
+      if (item.options.extraShot) itemPrice += 500;
+      return sum + itemPrice * item.quantity;
+    }, 0);
+
+    // 재고 감소
+    setInventory((prevInventory) =>
+      prevInventory.map((invItem) => {
+        const cartItem = cartItems.find(ci => ci.id === invItem.id);
+        if (cartItem) {
+          return { ...invItem, stock: invItem.stock - cartItem.quantity };
+        }
+        return invItem;
+      })
+    );
+
+    // 새 주문 생성
+    const newOrder = {
+      id: orders.length + 1,
+      date: new Date().toISOString(),
+      items: cartItems.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        options: item.options
+      })),
+      total,
+      status: 'pending'
+    };
+
+    setOrders([newOrder, ...orders]);
+    
+    // 주문 처리
     alert('주문이 완료되었습니다!');
     setCartItems([]); // 장바구니 초기화
+  };
+
+  // 재고 업데이트
+  const handleUpdateInventory = (menuId, change) => {
+    setInventory((prevInventory) =>
+      prevInventory.map((item) =>
+        item.id === menuId
+          ? { ...item, stock: Math.max(0, item.stock + change) }
+          : item
+      )
+    );
+  };
+
+  // 주문 상태 변경
+  const handleUpdateOrderStatus = (orderId, newStatus) => {
+    setOrders((prevOrders) =>
+      prevOrders.map((order) =>
+        order.id === orderId ? { ...order, status: newStatus } : order
+      )
+    );
+  };
+
+  // 대시보드 통계 계산
+  const getOrderStats = () => {
+    return {
+      total: orders.length,
+      pending: orders.filter(o => o.status === 'pending').length,
+      preparing: orders.filter(o => o.status === 'preparing').length,
+      completed: orders.filter(o => o.status === 'completed').length,
+    };
   };
 
   return (
@@ -126,15 +214,20 @@ function App() {
 
       {activeTab === 'order' ? (
         <div className="order-page">
+          <OrderStatus orders={orders} />
           <div className="menu-section">
             <div className="menu-grid">
-              {MENU_DATA.map((menu) => (
-                <MenuCard
-                  key={menu.id}
-                  menu={menu}
-                  onAddToCart={handleAddToCart}
-                />
-              ))}
+              {MENU_DATA.map((menu) => {
+                const stock = inventory.find(item => item.id === menu.id)?.stock || 0;
+                return (
+                  <MenuCard
+                    key={menu.id}
+                    menu={menu}
+                    stock={stock}
+                    onAddToCart={handleAddToCart}
+                  />
+                );
+              })}
             </div>
           </div>
 
@@ -142,9 +235,15 @@ function App() {
         </div>
       ) : (
         <div className="admin-page">
-          <p style={{ textAlign: 'center', fontSize: '1.5rem', color: '#999' }}>
-            관리자 화면은 추후 구현 예정입니다.
-          </p>
+          <AdminDashboard stats={getOrderStats()} />
+          <InventoryManagement 
+            inventory={inventory} 
+            onUpdateInventory={handleUpdateInventory}
+          />
+          <OrderManagement 
+            orders={orders}
+            onUpdateOrderStatus={handleUpdateOrderStatus}
+          />
         </div>
       )}
     </div>
