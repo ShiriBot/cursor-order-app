@@ -1,0 +1,140 @@
+.menu-card {
+  border: 1px solid #e8e8e8;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 12px;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.menu-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.menu-image-placeholder {
+  width: 100%;
+  height: 150px;
+  border: 1px solid #e8e8e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  background-color: #f8f9fa;
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.menu-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-cross {
+  font-size: 3rem;
+  color: #ccc;
+}
+
+.image-cross::before,
+.image-cross::after {
+  content: '';
+  position: absolute;
+  background-color: #ddd;
+}
+
+.image-cross::before {
+  width: 80%;
+  height: 1px;
+  top: 50%;
+  left: 10%;
+  transform: rotate(45deg);
+}
+
+.image-cross::after {
+  width: 80%;
+  height: 1px;
+  top: 50%;
+  left: 10%;
+  transform: rotate(-45deg);
+}
+
+.menu-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: #212529;
+}
+
+.menu-price {
+  font-size: 1rem;
+  margin: 0 0 0.5rem 0;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.menu-description {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+}
+
+.menu-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.option-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #495057;
+}
+
+.option-label input[type="checkbox"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: #667eea;
+}
+
+.add-button {
+  padding: 0.8rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.add-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.add-button:active {
+  transform: translateY(0);
+}
+
+.add-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.add-button:disabled:hover {
+  transform: none;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}

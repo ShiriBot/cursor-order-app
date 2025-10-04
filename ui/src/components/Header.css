@@ -1,0 +1,91 @@
+.header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 1.2rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navigation {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.nav-tab {
+  padding: 0.6rem 1.5rem;
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s;
+  color: #495057;
+}
+
+.nav-tab:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.nav-tab.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .header {
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .logo {
+    font-size: 1.4rem;
+  }
+
+  .navigation {
+    gap: 0.5rem;
+  }
+
+  .nav-tab {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0.8rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+  }
+
+  .nav-tab {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}
