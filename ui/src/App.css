@@ -1,12 +1,303 @@
+/* 로딩 스피너 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 에러 컨테이너 */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+.error-container h2 {
+  margin-bottom: 15px;
+  font-size: 2rem;
+}
+
+.error-container p {
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.error-container button {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.error-container button:hover {
+  background: #f0f0f0;
+  transform: translateY(-2px);
+}
+
+/* 액션 로딩 오버레이 */
+.action-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  color: white;
+}
+
+.action-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
 .app {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem 2rem;
-  padding-bottom: calc(40vh + 2rem); /* 플로팅 장바구니를 위한 공간 확보 */
+  padding: 0 1rem 2rem;
+  padding-bottom: 2rem;
 }
 
 .order-page {
   display: block;
+}
+
+.order-content {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.order-left {
+  flex: 1;
+}
+
+.order-right {
+  flex: 0 0 30%;
+  min-width: 300px;
+}
+
+.sidebar {
+  position: sticky;
+  top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sidebar-section {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.order-history-toggle {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+}
+
+.order-history-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.toggle-icon {
+  font-size: 0.9rem;
+  transition: transform 0.3s ease;
+}
+
+.toggle-text {
+  flex: 1;
+  text-align: left;
+}
+
+.toggle-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.order-history {
+  padding: 1.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.order-history h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  color: #212529;
+}
+
+.order-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.order-history-item {
+  padding: 1.25rem;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.order-history-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.order-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.order-history-time {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.order-history-status {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.order-history-status.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.order-history-status.preparing {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.order-history-status.completed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.order-history-items {
+  margin-bottom: 1rem;
+}
+
+.order-history-item-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f8f9fa;
+  gap: 1rem;
+}
+
+.order-history-item-detail:last-child {
+  border-bottom: none;
+}
+
+.item-name {
+  font-size: 0.9rem;
+  color: #212529;
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-quantity {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.item-price {
+  font-size: 0.85rem;
+  color: #667eea;
+  font-weight: 600;
+  flex-shrink: 0;
+  min-width: 60px;
+  text-align: right;
+}
+
+.order-history-total {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #667eea;
+  text-align: right;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.order-history-empty {
+  text-align: center;
+  color: #adb5bd;
+  font-style: italic;
+  padding: 2rem 1rem;
 }
 
 .menu-section {
@@ -18,16 +309,44 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
   margin-bottom: 2rem;
+  padding: 0 0.5rem;
 }
 
 .admin-page {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding-bottom: 2rem;
+  padding: 1rem;
+}
+
+.admin-content {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.admin-left {
+  flex: 1;
+}
+
+.admin-right {
+  flex: 1;
 }
 
 /* 반응형 디자인 */
 @media (max-width: 1200px) {
+  .admin-content {
+    flex-direction: column;
+  }
+  
+  .order-content {
+    flex-direction: column;
+  }
+  
+  .order-right {
+    flex: none;
+    min-width: auto;
+  }
+  
   .menu-grid {
     grid-template-columns: repeat(2, 1fr);
   }

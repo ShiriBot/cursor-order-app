@@ -60,17 +60,18 @@ function OrderManagement({ orders, onUpdateOrderStatus, onDeleteOrder }) {
           {orders.map((order) => (
             <div key={order.id} className="order-card">
               <div className="order-info">
-                <div className="order-date">{formatDate(order.date)}</div>
+                <div className="order-date">{formatDate(order.created_at)}</div>
                 <div className="order-items">
                   {order.items.map((item, index) => (
                     <span key={index}>
-                      {item.name}
-                      {item.options.extraShot && ' (샷 추가)'}
-                      {item.options.extraSyrup && ' (시럽 추가)'} x {item.quantity}
+                      {item.menu_name}
+                      {item.options && item.options.length > 0 && 
+                        ` (${item.options.map(opt => opt.option_name).join(', ')})`
+                      } x {item.quantity}
                     </span>
                   ))}
                 </div>
-                <div className="order-price">{order.total.toLocaleString()}원</div>
+                <div className="order-price">{order.total_amount.toLocaleString()}원</div>
               </div>
               <div className="order-action">{getStatusButton(order)}</div>
             </div>

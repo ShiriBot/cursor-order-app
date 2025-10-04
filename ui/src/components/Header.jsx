@@ -1,6 +1,6 @@
 import './Header.css';
 
-function Header({ activeTab, onTabChange }) {
+function Header({ activeTab, setActiveTab }) {
   return (
     <header className="header">
       <div className="header-container">
@@ -8,13 +8,13 @@ function Header({ activeTab, onTabChange }) {
         <nav className="navigation">
           <button
             className={`nav-tab ${activeTab === 'order' ? 'active' : ''}`}
-            onClick={() => onTabChange('order')}
+            onClick={() => setActiveTab('order')}
           >
             주문하기
           </button>
           <button
             className={`nav-tab ${activeTab === 'admin' ? 'active' : ''}`}
-            onClick={() => onTabChange('admin')}
+            onClick={() => setActiveTab('admin')}
           >
             관리자
           </button>

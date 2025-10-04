@@ -1,74 +1,59 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import MenuCard from './components/MenuCard';
 import Cart from './components/Cart';
-import OrderStatus from './components/OrderStatus';
 import AdminDashboard from './components/AdminDashboard';
 import InventoryManagement from './components/InventoryManagement';
 import OrderManagement from './components/OrderManagement';
+import { menuAPI, optionAPI, orderAPI } from './services/api';
 import './App.css';
-
-// 임시 메뉴 데이터
-const MENU_DATA = [
-  { 
-    id: 1, 
-    name: '아메리카노(ICE)', 
-    price: 4000,
-    description: '시원하고 깔끔한 아이스 아메리카노',
-    image: 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?w=400&h=300&fit=crop'
-  },
-  { 
-    id: 2, 
-    name: '아메리카노(HOT)', 
-    price: 4000,
-    description: '따뜻하고 진한 핫 아메리카노',
-    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&h=300&fit=crop'
-  },
-  { 
-    id: 3, 
-    name: '카페라떼', 
-    price: 5000,
-    description: '부드러운 우유와 에스프레소의 조화',
-    image: 'https://images.unsplash.com/photo-1561882468-9110e03e0f78?w=400&h=300&fit=crop'
-  },
-  { 
-    id: 4, 
-    name: '카푸치노', 
-    price: 5000,
-    description: '풍부한 우유 거품이 올라간 카푸치노',
-    image: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=300&fit=crop'
-  },
-  { 
-    id: 5, 
-    name: '바닐라라떼', 
-    price: 5500,
-    description: '달콤한 바닐라 향이 가득한 라떼',
-    image: 'https://images.unsplash.com/photo-1599639957043-e5c91c6d3e8d?w=400&h=300&fit=crop'
-  },
-  { 
-    id: 6, 
-    name: '카라멜마끼아또', 
-    price: 5500,
-    description: '달콤한 카라멜과 에스프레소의 만남',
-    image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop'
-  },
-];
 
 function App() {
   const [activeTab, setActiveTab] = useState('order');
   const [cartItems, setCartItems] = useState([]);
   
-  // 관리자 페이지 상태
-  const [inventory, setInventory] = useState([
-    { id: 1, name: '아메리카노(ICE)', stock: 10 },
-    { id: 2, name: '아메리카노(HOT)', stock: 8 },
-    { id: 3, name: '카페라떼', stock: 5 },
-    { id: 4, name: '카푸치노', stock: 3 },
-    { id: 5, name: '바닐라라떼', stock: 7 },
-    { id: 6, name: '카라멜마끼아또', stock: 0 },
-  ]);
-  
+  // API 데이터 상태
+  const [menus, setMenus] = useState([]);
+  const [options, setOptions] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [showOrderHistory, setShowOrderHistory] = useState(false);
+
+  // 데이터 로딩
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // 병렬로 데이터 로드
+      const [menusResponse, optionsResponse, ordersResponse] = await Promise.all([
+        menuAPI.getMenus(),
+        optionAPI.getOptions(),
+        orderAPI.getOrders()
+      ]);
+
+      setMenus(menusResponse.data);
+      setOptions(optionsResponse.data);
+      setOrders(ordersResponse.data.orders);
+    } catch (err) {
+      console.error('데이터 로딩 오류:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 재고 확인 함수
+  const checkStock = (menuId, quantity) => {
+    const menu = menus.find(m => m.id === menuId);
+    return menu && menu.stock >= quantity;
+  };
 
   // 장바구니에 추가
   const handleAddToCart = (menuItem) => {
@@ -82,7 +67,7 @@ function App() {
       );
 
       if (existingItemIndex !== -1) {
-        // 이미 존재하면 수량 증가
+        // 기존 항목의 수량 증가
         const newItems = [...prevItems];
         newItems[existingItemIndex] = {
           ...newItems[existingItemIndex],
@@ -90,13 +75,13 @@ function App() {
         };
         return newItems;
       } else {
-        // 새로운 항목 추가
+        // 새 항목 추가
         return [...prevItems, { ...menuItem, quantity: 1 }];
       }
     });
   };
 
-  // 수량 업데이트
+  // 장바구니 수량 업데이트
   const handleUpdateQuantity = (index, change) => {
     setCartItems((prevItems) => {
       const newItems = [...prevItems];
@@ -107,39 +92,31 @@ function App() {
       const newQuantity = currentItem.quantity + change;
       
       if (newQuantity <= 0) {
-        // 수량이 0 이하면 항목 제거
         return newItems.filter((_, i) => i !== index);
       }
       
       // 재고 확인 (증가할 때만)
       if (change > 0) {
-        const stock = inventory.find(item => item.id === currentItem.id)?.stock || 0;
+        const stock = menus.find(item => item.id === currentItem.id)?.stock || 0;
         if (newQuantity > stock) {
           alert(`재고가 부족합니다. (현재 재고: ${stock}개)`);
           return prevItems;
         }
       }
       
-      // 새로운 배열 생성하여 반환
       return newItems.map((item, i) => 
         i === index ? { ...item, quantity: newQuantity } : item
       );
     });
   };
 
-  // 장바구니 항목 삭제
+  // 장바구니에서 항목 제거
   const handleRemoveFromCart = (index) => {
     setCartItems((prevItems) => prevItems.filter((_, i) => i !== index));
   };
 
-  // 재고 확인 함수
-  const checkStock = (menuId, quantity) => {
-    const inventoryItem = inventory.find(item => item.id === menuId);
-    return inventoryItem && inventoryItem.stock >= quantity;
-  };
-
-  // 주문하기
-  const handleOrder = () => {
+  // 주문 처리
+  const handleOrder = async () => {
     if (cartItems.length === 0) {
       alert('장바구니가 비어있습니다.');
       return;
@@ -148,79 +125,86 @@ function App() {
     // 재고 확인
     for (const item of cartItems) {
       if (!checkStock(item.id, item.quantity)) {
-        const inventoryItem = inventory.find(inv => inv.id === item.id);
-        alert(`${item.name}의 재고가 부족합니다. (현재 재고: ${inventoryItem?.stock || 0}개)`);
+        const menuItem = menus.find(m => m.id === item.id);
+        alert(`${item.name}의 재고가 부족합니다. (현재 재고: ${menuItem?.stock || 0}개)`);
         return;
       }
     }
 
-    // 총 금액 계산
-    const total = cartItems.reduce((sum, item) => {
-      let itemPrice = item.price;
-      if (item.options.extraShot) itemPrice += 500;
-      return sum + itemPrice * item.quantity;
-    }, 0);
+    try {
+      // API 형식으로 변환
+      const orderItems = cartItems.map(item => {
+        const optionIds = [];
+        if (item.options.extraShot) optionIds.push(1); // 샷 추가
+        if (item.options.extraSyrup) optionIds.push(2); // 시럽 추가
+        
+        return {
+          menuId: item.id,
+          quantity: item.quantity,
+          options: optionIds
+        };
+      });
 
-    // 재고 감소
-    setInventory((prevInventory) =>
-      prevInventory.map((invItem) => {
-        const cartItem = cartItems.find(ci => ci.id === invItem.id);
-        if (cartItem) {
-          return { ...invItem, stock: invItem.stock - cartItem.quantity };
-        }
-        return invItem;
-      })
-    );
+      const response = await orderAPI.createOrder({ items: orderItems });
+      
+      // 주문 성공 시
+      setCartItems([]);
+      setOrders(prevOrders => [response.data, ...prevOrders]);
+      
+      // 메뉴 재고 업데이트
+      await loadData();
+      
+      setTimeout(() => {
+        alert('✅ 주문이 완료되었습니다!\n주문 상태는 화면 우측 상단에서 확인할 수 있습니다.');
+      }, 100);
+    } catch (error) {
+      console.error('주문 오류:', error);
+      alert(`주문 실패: ${error.message}`);
+    }
+  };
 
-    // 새 주문 생성 (고유 ID 생성)
-    const newOrder = {
-      id: Date.now(),
-      date: new Date().toISOString(),
-      items: cartItems.map(item => ({
-        name: item.name,
-        quantity: item.quantity,
-        options: item.options
-      })),
-      total,
-      status: 'pending'
-    };
+  // 재고 업데이트 (관리자)
+  const handleUpdateInventory = async (menuId, change) => {
+    try {
+      setActionLoading(true);
+      await menuAPI.updateStock(menuId, change);
+      await loadData(); // 데이터 새로고침
+    } catch (error) {
+      console.error('재고 업데이트 오류:', error);
+      alert(`재고 업데이트 실패: ${error.message}`);
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
-    setOrders([newOrder, ...orders]);
-    setCartItems([]); // 장바구니 초기화
+  // 주문 상태 변경 (관리자)
+  const handleUpdateOrderStatus = async (orderId, newStatus) => {
+    try {
+      setActionLoading(true);
+      await orderAPI.updateStatus(orderId, newStatus);
+      await loadData(); // 데이터 새로고침
+    } catch (error) {
+      console.error('주문 상태 변경 오류:', error);
+      alert(`상태 변경 실패: ${error.message}`);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // 주문 삭제 (관리자)
+  const handleDeleteOrder = async (orderId) => {
+    if (!confirm('이 주문을 삭제하시겠습니까?')) return;
     
-    // 주문 처리
-    setTimeout(() => {
-      alert('✅ 주문이 완료되었습니다!\n주문 상태는 화면 우측 상단에서 확인할 수 있습니다.');
-    }, 100);
-  };
-
-  // 재고 업데이트
-  const handleUpdateInventory = (menuId, change) => {
-    setInventory((prevInventory) =>
-      prevInventory.map((item) =>
-        item.id === menuId
-          ? { ...item, stock: Math.max(0, item.stock + change) }
-          : item
-      )
-    );
-  };
-
-  // 주문 상태 변경
-  const handleUpdateOrderStatus = (orderId, newStatus) => {
-    setOrders((prevOrders) =>
-      prevOrders.map((order) =>
-        order.id === orderId ? { ...order, status: newStatus } : order
-      )
-    );
-  };
-
-  // 주문 삭제 (완료된 주문만)
-  const handleDeleteOrder = (orderId) => {
-    const order = orders.find(o => o.id === orderId);
-    if (order && order.status === 'completed') {
-      if (window.confirm('이 주문을 삭제하시겠습니까?')) {
-        setOrders((prevOrders) => prevOrders.filter(o => o.id !== orderId));
-      }
+    try {
+      setActionLoading(true);
+      await orderAPI.deleteOrder(orderId);
+      await loadData(); // 데이터 새로고침
+      alert('주문이 삭제되었습니다.');
+    } catch (error) {
+      console.error('주문 삭제 오류:', error);
+      alert(`삭제 실패: ${error.message}`);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -228,57 +212,164 @@ function App() {
   const getOrderStats = () => {
     return {
       total: orders.length,
-      pending: orders.filter(o => o.status === 'pending').length,
-      preparing: orders.filter(o => o.status === 'preparing').length,
-      completed: orders.filter(o => o.status === 'completed').length,
+      pending: orders.filter(order => order.status === 'pending').length,
+      preparing: orders.filter(order => order.status === 'preparing').length,
+      completed: orders.filter(order => order.status === 'completed').length
     };
   };
 
+  // 로딩 상태 표시
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>데이터를 불러오는 중...</p>
+      </div>
+    );
+  }
+
+  // 에러 상태 표시
+  if (error) {
+    return (
+      <div className="error-container">
+        <h2>오류가 발생했습니다</h2>
+        <p>{error}</p>
+        <button onClick={loadData}>다시 시도</button>
+      </div>
+    );
+  }
+
   return (
-    <div className="app">
-      <Header activeTab={activeTab} onTabChange={setActiveTab} />
-
-      {activeTab === 'order' ? (
-        <div className="order-page">
-          <OrderStatus orders={orders} />
-          <div className="menu-section">
-            <div className="menu-grid">
-              {MENU_DATA.map((menu) => {
-                const stock = inventory.find(item => item.id === menu.id)?.stock || 0;
-                return (
-                  <MenuCard
-                    key={menu.id}
-                    menu={menu}
-                    stock={stock}
-                    onAddToCart={handleAddToCart}
-                  />
-                );
-              })}
-            </div>
-          </div>
-
-          <Cart 
-            items={cartItems} 
-            inventory={inventory}
-            onOrder={handleOrder} 
-            onUpdateQuantity={handleUpdateQuantity}
-            onRemoveItem={handleRemoveFromCart}
-          />
-        </div>
-      ) : (
-        <div className="admin-page">
-          <AdminDashboard stats={getOrderStats()} />
-          <InventoryManagement 
-            inventory={inventory} 
-            onUpdateInventory={handleUpdateInventory}
-          />
-          <OrderManagement 
-            orders={orders}
-            onUpdateOrderStatus={handleUpdateOrderStatus}
-            onDeleteOrder={handleDeleteOrder}
-          />
+    <div className="App">
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+      
+      {/* 액션 로딩 스피너 */}
+      {actionLoading && (
+        <div className="action-loading-overlay">
+          <div className="action-loading-spinner"></div>
+          <p>처리 중...</p>
         </div>
       )}
+      
+      <main className="main-content">
+        {activeTab === 'order' ? (
+          <div className="order-page">
+            {/* 좌우 레이아웃 */}
+            <div className="order-content">
+              {/* 왼쪽: 메뉴 목록 */}
+              <div className="order-left">
+                <div className="menu-section">
+                  <div className="menu-grid">
+                    {menus.map(menu => (
+                      <MenuCard
+                        key={menu.id}
+                        menu={menu}
+                        stock={menu.stock}
+                        onAddToCart={handleAddToCart}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              {/* 오른쪽: 사이드바 */}
+              <div className="order-right">
+                <div className="sidebar">
+                  {/* 장바구니 */}
+                  <div className="sidebar-section">
+                    <Cart
+                      items={cartItems}
+                      inventory={menus}
+                      onUpdateQuantity={handleUpdateQuantity}
+                      onRemoveItem={handleRemoveFromCart}
+                      onOrder={handleOrder}
+                    />
+                  </div>
+                  
+                  {/* 주문 내역 */}
+                  <div className="sidebar-section">
+                    <button 
+                      className="order-history-toggle"
+                      onClick={() => setShowOrderHistory(!showOrderHistory)}
+                    >
+                      <span className="toggle-icon">
+                        {showOrderHistory ? '▼' : '▶'}
+                      </span>
+                      <span className="toggle-text">주문 내역</span>
+                      <span className="toggle-count">({orders.length})</span>
+                    </button>
+                    
+                    {showOrderHistory && (
+                      <div className="order-history">
+                        <h3>주문 내역</h3>
+                        <div className="order-history-list">
+                          {orders.slice(0, 5).map(order => (
+                            <div key={order.id} className="order-history-item">
+                              <div className="order-history-header">
+                                <div className="order-history-time">
+                                  {new Date(order.created_at).toLocaleDateString('ko-KR', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </div>
+                                <div className={`order-history-status ${order.status}`}>
+                                  {order.status === 'pending' ? '주문 접수' :
+                                   order.status === 'preparing' ? '제조 중' : '제조 완료'}
+                                </div>
+                              </div>
+                              <div className="order-history-items">
+                                {order.items.map((item, index) => (
+                                  <div key={index} className="order-history-item-detail">
+                                    <span className="item-name">{item.menu_name}</span>
+                                    <span className="item-quantity">x{item.quantity}</span>
+                                    <span className="item-price">{item.subtotal.toLocaleString()}원</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="order-history-total">
+                                총 {order.total_amount.toLocaleString()}원
+                              </div>
+                            </div>
+                          ))}
+                          {orders.length === 0 && (
+                            <div className="order-history-empty">
+                              아직 주문 내역이 없습니다
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="admin-page">
+            {/* 관리자 대시보드 */}
+            <AdminDashboard stats={getOrderStats()} />
+            
+            {/* 재고 관리와 주문 관리를 좌우로 배치 */}
+            <div className="admin-content">
+              <div className="admin-left">
+                <InventoryManagement
+                  menus={menus}
+                  onUpdateInventory={handleUpdateInventory}
+                />
+              </div>
+              <div className="admin-right">
+                <OrderManagement
+                  orders={orders}
+                  onUpdateOrderStatus={handleUpdateOrderStatus}
+                  onDeleteOrder={handleDeleteOrder}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 }

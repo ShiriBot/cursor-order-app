@@ -39,11 +39,11 @@ function OrderStatus({ orders }) {
           return (
             <div key={order.id} className="order-status-item">
               <div className="order-status-info">
-                <div className="order-status-time">{formatDate(order.date)}</div>
+                <div className="order-status-time">{formatDate(order.created_at)}</div>
                 <div className="order-status-items">
                   {order.items.map((item, index) => (
                     <span key={index}>
-                      {item.name} x {item.quantity}
+                      {item.menu_name} x {item.quantity}
                     </span>
                   ))}
                 </div>

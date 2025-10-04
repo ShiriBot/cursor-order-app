@@ -28,12 +28,12 @@ app.get('/health', (req, res) => {
 
 // 라우트 설정
 const menuRoutes = require('./routes/menuRoutes');
-// const orderRoutes = require('./routes/orderRoutes');
-// const optionRoutes = require('./routes/optionRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const optionRoutes = require('./routes/optionRoutes');
 
 app.use('/api/menus', menuRoutes);
-// app.use('/api/orders', orderRoutes);
-// app.use('/api/options', optionRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/options', optionRoutes);
 
 // 404 에러 처리
 app.use((req, res) => {

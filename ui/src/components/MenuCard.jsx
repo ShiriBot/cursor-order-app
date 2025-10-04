@@ -59,9 +59,15 @@ function MenuCard({ menu, stock, onAddToCart }) {
       </div>
       <div className="menu-header">
         <h3 className="menu-name">{menu.name}</h3>
-        {isOutOfStock && <span className="stock-badge out">품절</span>}
-        {!isOutOfStock && stock < 5 && <span className="stock-badge low">재고 {stock}개</span>}
       </div>
+      
+      {/* 재고 표기 */}
+      {isOutOfStock && (
+        <div className="stock-indicator out">품절</div>
+      )}
+      {!isOutOfStock && stock < 5 && (
+        <div className="stock-indicator low">재고 {stock}개</div>
+      )}
       <p className="menu-price">{menu.price.toLocaleString()}원</p>
       <p className="menu-description">{menu.description || '간단한 설명...'}</p>
       

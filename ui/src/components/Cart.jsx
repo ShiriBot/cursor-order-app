@@ -4,6 +4,7 @@ import './Cart.css';
 function Cart({ items, inventory, onOrder, onUpdateQuantity, onRemoveItem }) {
   const [updatingIndex, setUpdatingIndex] = useState(null);
   const updateTimeoutRef = useRef(null);
+  
   // 총 금액 계산
   const totalAmount = items.reduce((sum, item) => {
     let itemPrice = item.price;
@@ -38,77 +39,73 @@ function Cart({ items, inventory, onOrder, onUpdateQuantity, onRemoveItem }) {
   return (
     <div className="cart">
       <div className="cart-content">
-        <div className="cart-left">
-          <h2 className="cart-title">장바구니</h2>
-          
-          {items.length === 0 ? (
-            <p className="cart-empty">장바구니가 비어있습니다</p>
-          ) : (
-            <div className="cart-items">
-              {items.map((item, index) => {
-                let itemPrice = item.price;
-                if (item.options.extraShot) itemPrice += 500;
-                const totalItemPrice = itemPrice * item.quantity;
-                const stock = inventory?.find(inv => inv.id === item.id)?.stock || 0;
-                const canIncrease = item.quantity < stock;
-
-                return (
-                  <div key={index} className="cart-item">
-                    <div className="cart-item-info">
-                      <div className="cart-item-header">
-                        <span className="cart-item-name">
-                          {item.name}{getOptionsText(item.options)}
-                        </span>
-                        <button 
-                          className="remove-btn"
-                          onClick={() => onRemoveItem(index)}
-                          title="삭제"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                      <div className="cart-item-controls">
-                        <button 
-                          className="quantity-btn"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleQuantityChange(index, -1);
-                          }}
-                          disabled={item.quantity <= 1 || updatingIndex === index}
-                        >
-                          -
-                        </button>
-                        <span className="cart-item-quantity">{item.quantity}</span>
-                        <button 
-                          className="quantity-btn"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleQuantityChange(index, 1);
-                          }}
-                          disabled={updatingIndex === index || !canIncrease}
-                          title={!canIncrease ? `재고: ${stock}개` : ''}
-                        >
-                          +
-                        </button>
-                        {!canIncrease && stock > 0 && (
-                          <span className="stock-warning-text">재고: {stock}</span>
-                        )}
-                      </div>
+        <h2 className="cart-title">장바구니</h2>
+        
+        {items.length === 0 ? (
+          <p className="cart-empty">장바구니가 비어있습니다</p>
+        ) : (
+          <div className="cart-items">
+            {items.map((item, index) => {
+              let itemPrice = item.price;
+              if (item.options.extraShot) itemPrice += 500;
+              const stock = inventory?.find(inv => inv.id === item.id)?.stock || 0;
+              const canIncrease = item.quantity < stock;
+              
+              return (
+                <div key={index} className="cart-item">
+                  <div className="cart-item-info">
+                    <div className="cart-item-name">
+                      {item.name}{getOptionsText(item.options)}
                     </div>
-                    <span className="cart-item-price">
-                      {totalItemPrice.toLocaleString()}원
-                    </span>
+                    {/* 재고 표기 */}
+                    {!canIncrease && stock > 0 && (
+                      <div className="cart-stock-indicator">재고 {stock}개</div>
+                    )}
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
+                  <div className="cart-item-controls">
+                    <button 
+                      className="quantity-btn"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleQuantityChange(index, -1);
+                      }}
+                      disabled={item.quantity <= 1 || updatingIndex === index}
+                    >
+                      -
+                    </button>
+                    <span className="cart-item-quantity">{item.quantity}</span>
+                    <button 
+                      className="quantity-btn"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleQuantityChange(index, 1);
+                      }}
+                      disabled={updatingIndex === index || !canIncrease}
+                      title={!canIncrease ? `재고: ${stock}개` : ''}
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div className="cart-item-price">
+                    {(itemPrice * item.quantity).toLocaleString()}원
+                  </div>
+                  <button 
+                    className="remove-btn"
+                    onClick={() => onRemoveItem(index)}
+                    title="삭제"
+                  >
+                    ✕
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        
         {items.length > 0 && (
-          <div className="cart-right">
+          <>
             <div className="cart-total">
               <span className="total-label">총 금액</span>
               <span className="total-amount">{totalAmount.toLocaleString()}원</span>
@@ -116,7 +113,7 @@ function Cart({ items, inventory, onOrder, onUpdateQuantity, onRemoveItem }) {
             <button className="order-button" onClick={onOrder}>
               주문하기
             </button>
-          </div>
+          </>
         )}
       </div>
     </div>
@@ -124,4 +121,3 @@ function Cart({ items, inventory, onOrder, onUpdateQuantity, onRemoveItem }) {
 }
 
 export default Cart;
-

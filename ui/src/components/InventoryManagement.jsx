@@ -1,6 +1,6 @@
 import './InventoryManagement.css';
 
-function InventoryManagement({ inventory, onUpdateInventory }) {
+function InventoryManagement({ menus, onUpdateInventory }) {
   const getStockStatus = (stock) => {
     if (stock === 0) return { text: '품절', className: 'stock-out' };
     if (stock < 5) return { text: '주의', className: 'stock-warning' };
@@ -11,7 +11,7 @@ function InventoryManagement({ inventory, onUpdateInventory }) {
     <div className="inventory-management">
       <h2 className="inventory-title">재고 현황</h2>
       <div className="inventory-grid">
-        {inventory.map((item) => {
+        {menus.map((item) => {
           const status = getStockStatus(item.stock);
           return (
             <div key={item.id} className="inventory-card">
