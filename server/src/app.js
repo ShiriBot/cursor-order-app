@@ -4,8 +4,25 @@ const cors = require('cors');
 const app = express();
 
 // 미들웨어 설정
+const allowedOrigins = [
+  'http://localhost:5173', // 개발 환경
+  'http://localhost:3000',  // 개발 환경 (백업)
+  'https://order-app-ui.onrender.com', // 예상 프론트엔드 URL
+  'https://cursor-order-app-frontend.onrender.com' // 실제 프론트엔드 URL
+];
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: function (origin, callback) {
+    // origin이 없는 경우 (모바일 앱, Postman 등)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('CORS 정책에 의해 차단되었습니다.'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json());
