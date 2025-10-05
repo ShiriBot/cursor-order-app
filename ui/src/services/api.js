@@ -1,5 +1,7 @@
 // API 기본 설정
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.PROD 
+  ? 'https://cursor-order-app-backend.onrender.com/api'  // 프로덕션 URL
+  : 'http://localhost:3000/api';  // 개발 환경 URL
 
 // API 요청 헬퍼 함수
 const apiRequest = async (endpoint, options = {}) => {
