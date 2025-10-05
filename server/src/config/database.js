@@ -10,6 +10,10 @@ const pool = new Pool({
   max: 20, // 최대 연결 수
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
+  // Render PostgreSQL SSL 설정
+  ssl: process.env.NODE_ENV === 'production' ? {
+    rejectUnauthorized: false // Render에서는 인증서 검증을 비활성화
+  } : false, // 개발 환경에서는 SSL 비활성화
 });
 
 // 연결 테스트
